@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="23094" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" customObjectInstantitationMethod="direct">
+<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="24506" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" customObjectInstantitationMethod="direct">
     <dependencies>
-        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="23094"/>
+        <deployment identifier="macosx"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="24506"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <objects>
@@ -13,7 +14,7 @@
             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
             <subviews>
                 <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="xFP-JM-BeS">
-                    <rect key="frame" x="-2" y="3" width="87" height="16"/>
+                    <rect key="frame" x="-2" y="4" width="87" height="16"/>
                     <textFieldCell key="cell" lineBreakMode="clipping" title="Config Name:" id="rjt-gw-VUT">
                         <font key="font" metaFont="system"/>
                         <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
@@ -21,7 +22,7 @@
                     </textFieldCell>
                 </textField>
                 <textField verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="2NP-oB-lQ0">
-                    <rect key="frame" x="88" y="31" width="250" height="22"/>
+                    <rect key="frame" x="88" y="34" width="250" height="22"/>
                     <constraints>
                         <constraint firstAttribute="width" constant="250" id="jJz-ed-Kab"/>
                         <constraint firstAttribute="height" constant="22" id="kdH-PF-SsK"/>
@@ -36,7 +37,7 @@
                     </connections>
                 </textField>
                 <textField verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="j93-9X-lPb">
-                    <rect key="frame" x="88" y="0.0" width="250" height="21"/>
+                    <rect key="frame" x="88" y="0.0" width="250" height="24"/>
                     <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" borderStyle="bezel" drawsBackground="YES" id="wzb-HN-Y8H">
                         <font key="font" metaFont="system"/>
                         <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
@@ -44,7 +45,7 @@
                     </textFieldCell>
                 </textField>
                 <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="vtb-1g-EKX">
-                    <rect key="frame" x="59" y="34" width="26" height="16"/>
+                    <rect key="frame" x="59" y="37" width="26" height="16"/>
                     <textFieldCell key="cell" lineBreakMode="clipping" title="Url:" id="QhQ-wR-TSQ">
                         <font key="font" usesAppearanceFont="YES"/>
                         <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>

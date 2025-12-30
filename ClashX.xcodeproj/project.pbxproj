@@ -176,6 +176,7 @@
 		01F3363E2AD10D0B0048AF77 /* country.mmdb.gz in Resources */ = {isa = PBXBuildFile; fileRef = 01B2274A29B845F100FE35C9 /* country.mmdb.gz */; };
 		01F336402AD10D0B0048AF77 /* com.metacubex.ClashX.ProxyConfigHelper in Copy Files */ = {isa = PBXBuildFile; fileRef = F9A7C0692306E874007163C7 /* com.metacubex.ClashX.ProxyConfigHelper */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		01FBC6312B9C2B0800810BFF /* ClashProcess.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01FBC62F2B9C2B0800810BFF /* ClashProcess.swift */; };
+		44C755732F039F9300F5F3E8 /* CustomTextLabel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44C755722F039F7800F5F3E8 /* CustomTextLabel.swift */; };
 		491E6203258A424D00313AEF /* CommonUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 491E61FD258A424500313AEF /* CommonUtils.m */; };
 		F935B2FA23083EE6009E4D33 /* ProxySettingTool.m in Sources */ = {isa = PBXBuildFile; fileRef = F935B2F923083EE6009E4D33 /* ProxySettingTool.m */; };
 /* End PBXBuildFile section */
@@ -281,6 +282,7 @@
 		01F336442AD10D0B0048AF77 /* ClashX Meta.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "ClashX Meta.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		01FBC62F2B9C2B0800810BFF /* ClashProcess.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClashProcess.swift; sourceTree = "<group>"; };
 		2753484F2A3082FD0077B458 /* TunModeSettingCommand.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TunModeSettingCommand.swift; sourceTree = "<group>"; };
+		44C755722F039F7800F5F3E8 /* CustomTextLabel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomTextLabel.swift; sourceTree = "<group>"; };
 		4905A2C42A2058B000AEDA2E /* GlobalShortCutViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlobalShortCutViewController.swift; sourceTree = "<group>"; };
 		4905A2C92A20841B00AEDA2E /* NSView+Layout.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "NSView+Layout.swift"; sourceTree = "<group>"; };
 		4908087A29F8F3FF007A4944 /* libresolv.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libresolv.tbd; path = usr/lib/libresolv.tbd; sourceTree = SDKROOT; };
@@ -761,6 +763,7 @@
 		49BC1B4029AEEBBB002007B1 /* StatusItem */ = {
 			isa = PBXGroup;
 			children = (
+				44C755722F039F7800F5F3E8 /* CustomTextLabel.swift */,
 				495340AF20DE5F7200B0D3FF /* StatusItemView.xib */,
 				495340B220DE68C300B0D3FF /* StatusItemView.swift */,
 				49D6A45129AEEC15006487EF /* StatusItemTool.swift */,
@@ -1023,6 +1026,7 @@
 				01F335D72AD10D0B0048AF77 /* DateFormatter+.swift in Sources */,
 				01F335D82AD10D0B0048AF77 /* ClashConnection.swift in Sources */,
 				01F335D92AD10D0B0048AF77 /* ConnectionManager.swift in Sources */,
+				44C755732F039F9300F5F3E8 /* CustomTextLabel.swift in Sources */,
 				01F335DA2AD10D0B0048AF77 /* StatusItemView.swift in Sources */,
 				01F335DB2AD10D0B0048AF77 /* SystemProxyManager.swift in Sources */,
 				01F335DC2AD10D0B0048AF77 /* LaunchAtLogin.swift in Sources */,

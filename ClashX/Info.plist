@@ -2,10 +2,6 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
-	<string>ClashX use location info to detect your current WiFi network SSID name and provide the auto suspend services.</string>
-	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>ClashX use location info to detect your current WiFi network SSID name and provide the auto suspend services.</string>
 	<key>BETA</key>
 	<true/>
 	<key>CFBundleDevelopmentRegion</key>
@@ -95,6 +91,10 @@
 	<true/>
 	<key>NSHumanReadableCopyright</key>
 	<string>Copyright © 2021年 yichengchen. All rights reserved.</string>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>ClashX use location info to detect your current WiFi network SSID name and provide the auto suspend services.</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>ClashX use location info to detect your current WiFi network SSID name and provide the auto suspend services.</string>
 	<key>NSMainStoryboardFile</key>
 	<string>Main</string>
 	<key>NSPrincipalClass</key>
@@ -119,17 +119,17 @@
 	<string>ProxySetting.sdef</string>
 	<key>SMAuthorizedClients</key>
 	<array>
-		<string>identifier &quot;com.west2online.ClashX&quot; and anchor apple generic and certificate leaf[subject.CN] = &quot;Mac Developer: chen yicheng (96U846XGYH)&quot; and certificate 1[field.1.2.840.113635.100.6.2.1] /* exists */</string>
+		<string>identifier "com.west2online.ClashX" and anchor apple generic and certificate leaf[subject.CN] = "Mac Developer: chen yicheng (96U846XGYH)" and certificate 1[field.1.2.840.113635.100.6.2.1] /* exists */</string>
 	</array>
 	<key>SMPrivilegedExecutables</key>
 	<dict>
 		<key>com.west2online.ClashX.ProxyConfigHelper</key>
-		<string>anchor apple generic and identifier &quot;com.metacubex.ClashX.ProxyConfigHelper&quot; and (certificate leaf[field.1.2.840.113635.100.6.1.9] /* exists */ or certificate 1[field.1.2.840.113635.100.6.2.6] /* exists */ and certificate leaf[field.1.2.840.113635.100.6.1.13] /* exists */ and certificate leaf[subject.OU] = MEWHFZ92DY)</string>
+		<string>anchor apple generic and identifier "com.metacubex.ClashX.ProxyConfigHelper" and (certificate leaf[field.1.2.840.113635.100.6.1.9] /* exists */ or certificate 1[field.1.2.840.113635.100.6.2.6] /* exists */ and certificate leaf[field.1.2.840.113635.100.6.1.13] /* exists */ and certificate leaf[subject.OU] = MEWHFZ92DY)</string>
 	</dict>
 	<key>SUDisallowSelectChannel</key>
 	<false/>
 	<key>SUFeedURL</key>
-	<string>https://raw.githubusercontent.com/MetaCubeX/clashX.meta/refs/heads/sparkle/appcast.xml</string>
+	<string>https://raw.githubusercontent.com/johnnyeven/ClashX.Meta/refs/heads/sparkle/appcast.xml</string>
 	<key>SUPublicEDKey</key>
 	<string>Jhu0RI5Vp02om6JhxYnFewD82GCV8v7U05toMFXb+7U=</string>
 </dict>

@@ -15,6 +15,8 @@ class MetaTask: NSObject {
     
     var timer: DispatchSourceTimer?
     let timerQueue = DispatchQueue(label: Bundle.main.bundleIdentifier! + ".timer")
+    private var outputPipe: Pipe?
+    private var errorPipe: Pipe?
     
 	@objc func start(_ path: String,
 					 confPath: String,
@@ -65,9 +67,11 @@ class MetaTask: NSObject {
 			self.proc.qualityOfService = .userInitiated
 			
 			let pipe = Pipe()
+			self.outputPipe = pipe
 			var logs = [String]()
 			
-			let errorPipe = Pipe()
+			let errPipe = Pipe()
+			self.errorPipe = errPipe
 			var errorLogs = [String]()
 			
 			pipe.fileHandleForReading.readabilityHandler = { pipe in
@@ -116,7 +120,7 @@ class MetaTask: NSObject {
 			}
 			
 			
-			errorPipe.fileHandleForReading.readabilityHandler = { pipe in
+			errPipe.fileHandleForReading.readabilityHandler = { pipe in
 				guard let output = String(data: pipe.availableData, encoding: .utf8) else {
 					return
 				}
@@ -126,7 +130,7 @@ class MetaTask: NSObject {
 			}
 			
 			
-			self.proc.standardError = errorPipe
+			self.proc.standardError = errPipe
 			self.proc.standardOutput = pipe
 			
 			self.proc.terminationHandler = { proc in
@@ -197,13 +201,20 @@ class MetaTask: NSObject {
     }
 
     @objc func stop() {
+        timer?.cancel()
+        timer = nil
+        outputPipe?.fileHandleForReading.readabilityHandler = nil
+        errorPipe?.fileHandleForReading.readabilityHandler = nil
+        outputPipe = nil
+        errorPipe = nil
+
         DispatchQueue.main.async {
             guard self.proc.isRunning else { return }
-            let proc = Process()
-            proc.executableURL = .init(fileURLWithPath: "/bin/kill")
-            proc.arguments = ["-9", "\(self.proc.processIdentifier)"]
-            try? proc.run()
-            proc.waitUntilExit()
+            let killer = Process()
+            killer.executableURL = .init(fileURLWithPath: "/bin/kill")
+            killer.arguments = ["-9", "\(self.proc.processIdentifier)"]
+            try? killer.run()
+            killer.waitUntilExit()
         }
     }
     

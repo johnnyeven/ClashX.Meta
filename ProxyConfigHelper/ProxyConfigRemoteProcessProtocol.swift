@@ -22,4 +22,6 @@ protocol ProxyConfigRemoteProcessProtocol {
 	func disableProxy(filterInterface: Bool, reply: @escaping (String?) -> Void)
 	func restoreProxy(currentPort: Int, socksPort: Int, info: [String: Any], filterInterface: Bool, reply: @escaping (String?) -> Void)
 	func getCurrentProxySetting(reply: @escaping ([String: Any]) -> Void)
+
+	func shutdown(reply: @escaping () -> Void)
 }

@@ -13,9 +13,10 @@ class ProxyConfigHelper: NSObject, NSXPCListenerDelegate {
 	private var listener: NSXPCListener
 	private var connections = [NSXPCConnection]()
 	private var shouldQuitCheckInterval = 2.0
-	private var shouldQuit = false
+	var shouldQuit = false
+	var clientMonitors = [pid_t: DispatchSourceProcess]()
 	
-	private let metaTask = MetaTask()
+	let metaTask = MetaTask()
 	private let metaDNS = MetaDNS()
 	
 	override init() {
@@ -44,13 +45,16 @@ class ProxyConfigHelper: NSObject, NSXPCListenerDelegate {
 		
 		newConnection.exportedInterface = NSXPCInterface(with: ProxyConfigRemoteProcessProtocol.self)
 		newConnection.exportedObject = self
-		newConnection.invalidationHandler = {
+		let clientPID = newConnection.processIdentifier
+		monitorClientProcess(pid: clientPID)
+
+		newConnection.invalidationHandler = { [weak self] in
+			guard let self = self else { return }
 			guard let index = self.connections.firstIndex(of: newConnection) else { return }
 			self.connections.remove(at: index)
-			
+
 			if self.connections.isEmpty {
-				self.shouldQuit = true
-				os_log("ProxyConfigHelper shouldQuit")
+				self.requestQuit()
 			}
 		}
 		
@@ -60,6 +64,14 @@ class ProxyConfigHelper: NSObject, NSXPCListenerDelegate {
 		return true
 	}
 	
+	func removeConnections(forClientPID pid: pid_t) {
+		connections.removeAll { $0.processIdentifier == pid }
+	}
+
+	var hasActiveConnections: Bool {
+		!connections.isEmpty
+	}
+
 	private func isValid(connection: NSXPCConnection) -> Bool {
 		guard let app = NSRunningApplication(processIdentifier: connection.processIdentifier),
 			  let bundleIdentifier = app.bundleIdentifier,
@@ -149,5 +161,13 @@ extension ProxyConfigHelper: ProxyConfigRemoteProcessProtocol {
             self.metaDNS.flushDnsCache()
         }
     }
+
+	func shutdown(reply: @escaping () -> Void) {
+		DispatchQueue.main.async {
+			self.metaTask.stop()
+			self.requestQuit()
+			reply()
+		}
+	}
     
 }

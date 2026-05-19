@@ -22,6 +22,7 @@ class PrivilegedHelperManager {
     private var authRef: AuthorizationRef?
     private var connection: NSXPCConnection?
     private var _helper: ProxyConfigRemoteProcessProtocol?
+    private var helperShutdownPerformed = false
     static let machServiceName = "com.metacubex.ClashX.ProxyConfigHelper"
 
     static let shared = PrivilegedHelperManager()
@@ -75,6 +76,36 @@ class PrivilegedHelperManager {
         connection?.invalidate()
         connection = nil
         _helper = nil
+    }
+
+    func stopMetaAndTun(dns: String) {
+        let remote = helper()
+        remote?.stopMeta()
+        remote?.updateTun(state: false, dns: dns)
+    }
+
+    func shutdownHelper(tunDNS: String, completion: (() -> Void)? = nil) {
+        guard !helperShutdownPerformed else {
+            completion?()
+            return
+        }
+        helperShutdownPerformed = true
+
+        let finish: () -> Void = { [weak self] in
+            self?.resetConnection()
+            completion?()
+        }
+
+        guard let remote = helper() else {
+            finish()
+            return
+        }
+
+        remote.stopMeta()
+        remote.updateTun(state: false, dns: tunDNS)
+        remote.shutdown {
+            finish()
+        }
     }
 
     private func initAuthorizationRef() {
@@ -135,16 +166,35 @@ class PrivilegedHelperManager {
     }
 
     func helper(failture: (() -> Void)? = nil) -> ProxyConfigRemoteProcessProtocol? {
-        connection = NSXPCConnection(machServiceName: PrivilegedHelperManager.machServiceName, options: NSXPCConnection.Options.privileged)
-        connection?.remoteObjectInterface = NSXPCInterface(with: ProxyConfigRemoteProcessProtocol.self)
-        connection?.invalidationHandler = {
-            Logger.log("XPC Connection Invalidated")
+        if let helper = _helper, connection != nil {
+            return helper
         }
-        connection?.resume()
-        guard let helper = connection?.remoteObjectProxyWithErrorHandler({ error in
+
+        connection?.invalidate()
+
+        let newConnection = NSXPCConnection(
+            machServiceName: PrivilegedHelperManager.machServiceName,
+            options: NSXPCConnection.Options.privileged
+        )
+        newConnection.remoteObjectInterface = NSXPCInterface(with: ProxyConfigRemoteProcessProtocol.self)
+        newConnection.invalidationHandler = { [weak self] in
+            Logger.log("XPC Connection Invalidated")
+            self?.connection = nil
+            self?._helper = nil
+        }
+        newConnection.resume()
+        connection = newConnection
+
+        guard let helper = newConnection.remoteObjectProxyWithErrorHandler({ [weak self] error in
             Logger.log("Helper connection was closed with error: \(error)")
+            self?.connection = nil
+            self?._helper = nil
             failture?()
-        }) as? ProxyConfigRemoteProcessProtocol else { return nil }
+        }) as? ProxyConfigRemoteProcessProtocol else {
+            resetConnection()
+            return nil
+        }
+        _helper = helper
         return helper
     }
 

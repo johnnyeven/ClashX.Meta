@@ -20,8 +20,7 @@ enum TerminalConfirmAction {
 		
 		ConfigManager.shared.restoreTunProxy = ConfigManager.shared.isTunModeVariable.value
 
-		PrivilegedHelperManager.shared.helper()?.stopMeta()
-		PrivilegedHelperManager.shared.helper()?.updateTun(state: false, dns: ConfigManager.metaTunDNS)
+		PrivilegedHelperManager.shared.stopMetaAndTun(dns: ConfigManager.metaTunDNS)
 		
 		try? FileManager.default.removeItem(atPath: Paths.tempPath() + "/cacheConfigs")
         try? FileManager.default.removeItem(atPath: Paths.localConfigPath(for: kSafeConfigName))
@@ -42,6 +41,7 @@ enum TerminalConfirmAction {
 
         if !shouldWait {
             Logger.log("ClashX quit without clean waiting")
+            PrivilegedHelperManager.shared.shutdownHelper(tunDNS: ConfigManager.metaTunDNS)
             return .terminateNow
         }
 
@@ -55,6 +55,9 @@ enum TerminalConfirmAction {
             switch res {
             case .success:
                 Logger.log("ClashX quit after clean up finish")
+                DispatchQueue.main.sync {
+                    PrivilegedHelperManager.shared.shutdownHelper(tunDNS: ConfigManager.metaTunDNS)
+                }
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
                     NSApp.reply(toApplicationShouldTerminate: true)
                 }
@@ -63,6 +66,9 @@ enum TerminalConfirmAction {
                 }
             case .timedOut:
                 Logger.log("ClashX quit after clean up timeout")
+                DispatchQueue.main.sync {
+                    PrivilegedHelperManager.shared.shutdownHelper(tunDNS: ConfigManager.metaTunDNS)
+                }
                 DispatchQueue.main.async {
                     NSApp.reply(toApplicationShouldTerminate: true)
                 }

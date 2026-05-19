@@ -16,7 +16,7 @@ import PromiseKit
 
 let statusItemLengthWithSpeed: CGFloat = 72
 
-private let MetaCoreMd5 = "WOSHIZIDONGSHENGCHENGDEA"
+private let MetaCoreMd5 = "df8b7426fed1ae1a617df53ba6bb30eb"
 
 @main
 class AppDelegate: NSObject, NSApplicationDelegate {
@@ -58,7 +58,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     @IBOutlet var flushFakeipCacheMenuItem: NSMenuItem!
 
     var disposeBag = DisposeBag()
-    var statusItemView: StatusItemViewProtocol!
+    var statusItemPresenter: StatusItemPresenting!
     var isSpeedTesting = false
 
     var runAfterConfigReload: (() -> Void)?
@@ -87,8 +87,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         ProcessInfo.processInfo.disableSuddenTermination()
         // setup menu item first
         statusItem = NSStatusBar.system.statusItem(withLength: statusItemLengthWithSpeed)
-        statusItemView = StatusItemView.create(statusItem: statusItem)
-        statusItemView.updateSize(width: statusItemLengthWithSpeed)
+        statusItemPresenter = StatusItemPresenterFactory.make(statusItem: statusItem)
+        statusItemPresenter.applyWidth(statusItemLengthWithSpeed)
         statusMenu.delegate = self
         setupStatusMenuItemData()
         DispatchQueue.main.async {
@@ -148,6 +148,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     func applicationWillTerminate(_ aNotification: Notification) {
         UserDefaults.standard.set(0, forKey: "launch_fail_times")
         Logger.log("ClashX will terminate")
+        PrivilegedHelperManager.shared.shutdownHelper(tunDNS: ConfigManager.metaTunDNS)
         if NetworkChangeNotifier.isCurrentSystemSetToClash(looser: true) ||
             NetworkChangeNotifier.hasInterfaceProxySetToClash() {
             Logger.log("Need Reset Proxy Setting again", level: .error)
@@ -193,12 +194,11 @@ class AppDelegate: NSObject, NSApplicationDelegate {
                 guard let self = self else { return }
                 self.showNetSpeedIndicatorMenuItem.state = (show ?? true) ? .on : .off
                 let statusItemLength: CGFloat = (show ?? true) ? statusItemLengthWithSpeed : 25
-                self.statusItem.length = statusItemLength
-                self.statusItemView.updateSize(width: statusItemLength)
-                self.statusItemView.showSpeedContainer(show: show ?? true)
+                self.statusItemPresenter.applyWidth(statusItemLength)
+                self.statusItemPresenter.applySpeedVisible(show ?? true)
             }.disposed(by: disposeBag)
 
-        statusItemView.updateViewStatus(enableProxy: ConfigManager.shared.proxyPortAutoSet)
+        statusItemPresenter.applyProxyEnabled(ConfigManager.shared.proxyPortAutoSet)
 
     }
 	
@@ -241,7 +241,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             }.distinctUntilChanged()
             .bind { [weak self] enable in
                 guard let self = self else { return }
-                self.statusItemView.updateViewStatus(enableProxy: enable)
+                self.statusItemPresenter.applyProxyEnabled(enable)
             }.disposed(by: disposeBag)
 
         let configObservable = ConfigManager.shared
@@ -757,7 +757,9 @@ extension AppDelegate: ApiRequestStreamDelegate {
 	}
 	
     func didUpdateTraffic(up: Int, down: Int) {
-        statusItemView.updateSpeedLabel(up: up, down: down)
+        StatusItemTrafficThrottler.shared.submit(up: up, down: down) { [weak self] up, down in
+            self?.statusItemPresenter.applySpeed(up: up, down: down)
+        }
     }
 
     func didGetLog(log: String, level: String) {

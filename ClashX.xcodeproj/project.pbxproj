@@ -62,6 +62,7 @@
 		01D567E42AD158B600CDA0AE /* MetaPrefs.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 01D567E12AD158B500CDA0AE /* MetaPrefs.storyboard */; };
 		01D567E62AD158B600CDA0AE /* MetaPrefsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01D567E22AD158B500CDA0AE /* MetaPrefsViewController.swift */; };
 		01EF33602B98D03B00D1DBD9 /* ProxyConfigHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01EF335F2B98D03B00D1DBD9 /* ProxyConfigHelper.swift */; };
+		01A26HLF2AD10D0B0048AF77 /* ProxyConfigHelperLifecycle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01A26HLF2AD10D0A0048AF77 /* ProxyConfigHelperLifecycle.swift */; };
 		01EF33622B98D3A700D1DBD9 /* ProxyConfigRemoteProcessProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01EF33612B98D3A700D1DBD9 /* ProxyConfigRemoteProcessProtocol.swift */; };
 		01EF33642B98D71600D1DBD9 /* ProxyConfigRemoteProcessProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01EF33612B98D3A700D1DBD9 /* ProxyConfigRemoteProcessProtocol.swift */; };
 		01F335CD2AD10D0B0048AF77 /* UnsafePointer+bridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49ABB748236B0F9E00535CD7 /* UnsafePointer+bridge.swift */; };
@@ -85,6 +86,7 @@
 		01F335DF2AD10D0B0048AF77 /* ClashWindowController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49CCDA292A54F9AC00FF1E13 /* ClashWindowController.swift */; };
 		01F335E02AD10D0B0048AF77 /* Settings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4929F67E258CE04700A435F6 /* Settings.swift */; };
 		01F335E12AD10D0B0048AF77 /* StatusItemViewProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49D6A45529AEEC55006487EF /* StatusItemViewProtocol.swift */; };
+		01A26CPU2AD10D0B0048AF77 /* StatusItemUpdatePolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01A26CPU2AD10D0A0048AF77 /* StatusItemUpdatePolicy.swift */; };
 		01F335E22AD10D0B0048AF77 /* AppVersionUtil.swift in Sources */ = {isa = PBXBuildFile; fileRef = 493AEAE2221AE3420016FE98 /* AppVersionUtil.swift */; };
 		01F335E32AD10D0B0048AF77 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49CF3B2020CD7463001EBF94 /* AppDelegate.swift */; };
 		01F335E42AD10D0B0048AF77 /* SpeedUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4991D22F2A564DDC00978143 /* SpeedUtils.swift */; };
@@ -277,6 +279,7 @@
 		01E33AB129B5BF4200FD1006 /* NSColor+Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NSColor+Extension.swift"; sourceTree = "<group>"; };
 		01E33AB429B5C5E300FD1006 /* menu_icon@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "menu_icon@2x.png"; sourceTree = "<group>"; };
 		01EF335F2B98D03B00D1DBD9 /* ProxyConfigHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProxyConfigHelper.swift; sourceTree = "<group>"; };
+		01A26HLF2AD10D0A0048AF77 /* ProxyConfigHelperLifecycle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProxyConfigHelperLifecycle.swift; sourceTree = "<group>"; };
 		01EF33612B98D3A700D1DBD9 /* ProxyConfigRemoteProcessProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProxyConfigRemoteProcessProtocol.swift; sourceTree = "<group>"; };
 		01F336442AD10D0B0048AF77 /* ClashX Meta.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "ClashX Meta.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		01FBC62F2B9C2B0800810BFF /* ClashProcess.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClashProcess.swift; sourceTree = "<group>"; };
@@ -357,6 +360,7 @@
 		49D223382A1DA5F10002FFCB /* SSIDSuspendTool.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SSIDSuspendTool.swift; sourceTree = "<group>"; };
 		49D6A45129AEEC15006487EF /* StatusItemTool.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatusItemTool.swift; sourceTree = "<group>"; };
 		49D6A45529AEEC55006487EF /* StatusItemViewProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatusItemViewProtocol.swift; sourceTree = "<group>"; };
+		01A26CPU2AD10D0A0048AF77 /* StatusItemUpdatePolicy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatusItemUpdatePolicy.swift; sourceTree = "<group>"; };
 		49D8276627E9B01700159D93 /* LoginKitWrapper.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = LoginKitWrapper.h; sourceTree = "<group>"; };
 		49D8276727E9B01700159D93 /* LoginKitWrapper.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = LoginKitWrapper.m; sourceTree = "<group>"; };
 		49FEC6682AD9369C00BAD9F5 /* Command.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Command.swift; sourceTree = "<group>"; };
@@ -765,6 +769,7 @@
 				495340B220DE68C300B0D3FF /* StatusItemView.swift */,
 				49D6A45129AEEC15006487EF /* StatusItemTool.swift */,
 				49D6A45529AEEC55006487EF /* StatusItemViewProtocol.swift */,
+				01A26CPU2AD10D0A0048AF77 /* StatusItemUpdatePolicy.swift */,
 			);
 			path = StatusItem;
 			sourceTree = "<group>";
@@ -856,6 +861,7 @@
 				019A239528657A7A00AE5698 /* main.swift */,
 				01EF33612B98D3A700D1DBD9 /* ProxyConfigRemoteProcessProtocol.swift */,
 				01EF335F2B98D03B00D1DBD9 /* ProxyConfigHelper.swift */,
+				01A26HLF2AD10D0A0048AF77 /* ProxyConfigHelperLifecycle.swift */,
 				0162E74E2864B819007218A6 /* MetaTask.swift */,
 				01CA6BBF2B6A1B3100E386D6 /* MetaServer.swift */,
 				01BC9ABD2928E5C600F9B177 /* MetaDNS.swift */,
@@ -1031,6 +1037,7 @@
 				01F335DF2AD10D0B0048AF77 /* ClashWindowController.swift in Sources */,
 				01F335E02AD10D0B0048AF77 /* Settings.swift in Sources */,
 				01F335E12AD10D0B0048AF77 /* StatusItemViewProtocol.swift in Sources */,
+				01A26CPU2AD10D0B0048AF77 /* StatusItemUpdatePolicy.swift in Sources */,
 				01F335E22AD10D0B0048AF77 /* AppVersionUtil.swift in Sources */,
 				01F335E32AD10D0B0048AF77 /* AppDelegate.swift in Sources */,
 				01F335E42AD10D0B0048AF77 /* SpeedUtils.swift in Sources */,
@@ -1151,6 +1158,7 @@
 				01EF33622B98D3A700D1DBD9 /* ProxyConfigRemoteProcessProtocol.swift in Sources */,
 				0162E74F2864B819007218A6 /* MetaTask.swift in Sources */,
 				01EF33602B98D03B00D1DBD9 /* ProxyConfigHelper.swift in Sources */,
+				01A26HLF2AD10D0B0048AF77 /* ProxyConfigHelperLifecycle.swift in Sources */,
 				019A239628657A7A00AE5698 /* main.swift in Sources */,
 				491E6203258A424D00313AEF /* CommonUtils.m in Sources */,
 				01BC9ABE2928EB5A00F9B177 /* MetaDNS.swift in Sources */,

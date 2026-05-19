@@ -7,7 +7,52 @@
 
 import AppKit
 import Foundation
+import ObjectiveC
 import QuartzCore
+
+private var statusItemUsesLeftIconLayoutKey: UInt8 = 0
+
+@available(macOS 26, *)
+private enum StatusItemNativeIconLayout {
+    private static let iconInsetX: CGFloat = 3
+    private static let iconSize: CGFloat = 18
+    private static var didSwizzle = false
+
+    static func activate(on cell: NSCell) {
+        installSwizzleIfNeeded()
+        objc_setAssociatedObject(
+            cell,
+            &statusItemUsesLeftIconLayoutKey,
+            true,
+            .OBJC_ASSOCIATION_RETAIN
+        )
+    }
+
+    private static func installSwizzleIfNeeded() {
+        guard !didSwizzle else { return }
+        didSwizzle = true
+        guard
+            let original = class_getInstanceMethod(NSButtonCell.self, #selector(NSCell.imageRect(forBounds:))),
+            let swizzled = class_getInstanceMethod(NSButtonCell.self, #selector(NSButtonCell.cx_statusItemImageRect(forBounds:)))
+        else { return }
+        method_exchangeImplementations(original, swizzled)
+    }
+
+    static func leftIconRect(in bounds: NSRect) -> NSRect {
+        let y = (bounds.height - iconSize) / 2
+        return NSRect(x: iconInsetX, y: y, width: iconSize, height: iconSize)
+    }
+}
+
+@available(macOS 26, *)
+extension NSButtonCell {
+    @objc func cx_statusItemImageRect(forBounds rect: NSRect) -> NSRect {
+        if objc_getAssociatedObject(self, &statusItemUsesLeftIconLayoutKey) != nil, image != nil {
+            return StatusItemNativeIconLayout.leftIconRect(in: rect)
+        }
+        return cx_statusItemImageRect(forBounds: rect)
+    }
+}
 
 protocol StatusItemPresenting: AnyObject {
     func applyProxyEnabled(_ enabled: Bool)
@@ -110,133 +155,79 @@ final class LegacyStatusItemPresenter: StatusItemPresenting {
     }
 }
 
-// MARK: - macOS 26+ (layout view: icon left + speed right, same geometry as StatusItemView.xib)
+// MARK: - macOS 26+ (system template icon + draw-based speed overlay)
 
-@available(macOS 26, *)
-private final class NativeStatusBarLayoutView: NSView {
-    private static let barHeight: CGFloat = 22
-    private static let iconInsetX: CGFloat = 3
-    private static let iconSize: CGFloat = 18
-    private static let speedOriginX: CGFloat = 38
-    private static let trailingInset: CGFloat = 3
-
-    private let iconView = NSImageView(frame: .zero)
-    private let speedOverlay = NativeSpeedOverlayView(frame: .zero)
-
-    override init(frame frameRect: NSRect) {
-        super.init(frame: frameRect)
-        setup()
-    }
-
-    required init?(coder: NSCoder) {
-        super.init(coder: coder)
-        setup()
-    }
-
-    private func setup() {
-        wantsLayer = false
-
-        let image = StatusItemTool.menuImage
-        image.isTemplate = true
-        iconView.image = image
-        iconView.imageFrameStyle = .none
-        iconView.wantsLayer = false
-        addSubview(iconView)
-
-        speedOverlay.wantsLayer = false
-        addSubview(speedOverlay)
-
-        updateLayout(width: bounds.width)
-    }
-
-    func updateLayout(width: CGFloat) {
-        frame.size.width = width
-        let iconY = (Self.barHeight - Self.iconSize) / 2
-        iconView.frame = NSRect(x: Self.iconInsetX, y: iconY, width: Self.iconSize, height: Self.iconSize)
-
-        let speedWidth = max(0, width - Self.speedOriginX - Self.trailingInset)
-        speedOverlay.frame = NSRect(x: Self.speedOriginX, y: 0, width: speedWidth, height: Self.barHeight)
-    }
-
-    func applyProxyEnabled(_ enabled: Bool) {
-        if enabled {
-            iconView.contentTintColor = .labelColor
-        } else {
-            iconView.contentTintColor = .labelColor.withSystemEffect(.disabled)
-        }
-    }
-
-    func applySpeedVisible(_ visible: Bool) {
-        speedOverlay.isHidden = !visible
-    }
-
-    func setSpeed(upload: String, download: String) {
-        speedOverlay.setSpeed(upload: upload, download: download)
-    }
-}
-
-/// Speed labels only (right side of layout view).
+/// Draws speed text only; does not intercept clicks (passes through to `NSStatusBarButton`).
 @available(macOS 26, *)
 private final class NativeSpeedOverlayView: NSView {
-    private let uploadLabel = NSTextField(labelWithString: "")
-    private let downloadLabel = NSTextField(labelWithString: "")
+    private var uploadText = ""
+    private var downloadText = ""
+    private let rightAlignedStyle: NSMutableParagraphStyle = {
+        let style = NSMutableParagraphStyle()
+        style.alignment = .right
+        style.lineBreakMode = .byClipping
+        return style
+    }()
 
     override var isFlipped: Bool { false }
 
     override init(frame frameRect: NSRect) {
         super.init(frame: frameRect)
-        setup()
+        wantsLayer = false
     }
 
     required init?(coder: NSCoder) {
         super.init(coder: coder)
-        setup()
-    }
-
-    private func setup() {
         wantsLayer = false
-        for label in [uploadLabel, downloadLabel] {
-            label.isBezeled = false
-            label.isEditable = false
-            label.isSelectable = false
-            label.drawsBackground = false
-            label.isBordered = false
-            label.font = StatusItemTool.font
-            label.textColor = .labelColor
-            label.alignment = .right
-            label.lineBreakMode = .byClipping
-            label.wantsLayer = false
-            addSubview(label)
-        }
-        layoutLabels()
     }
 
-    private func layoutLabels() {
-        let w = bounds.width
-        uploadLabel.frame = NSRect(x: 0, y: 11, width: w, height: 10)
-        downloadLabel.frame = NSRect(x: 0, y: 1, width: w, height: 10)
+    override func hitTest(_ point: NSPoint) -> NSView? {
+        nil
     }
 
-    override func layout() {
-        super.layout()
-        layoutLabels()
+    override func draw(_ dirtyRect: NSRect) {
+        let attrs: [NSAttributedString.Key: Any] = [
+            .font: StatusItemTool.font,
+            .foregroundColor: NSColor.labelColor,
+            .paragraphStyle: rightAlignedStyle,
+        ]
+        let width = bounds.width
+        uploadText.draw(
+            with: NSRect(x: 0, y: 11, width: width, height: 10),
+            options: [.usesLineFragmentOrigin, .usesFontLeading],
+            attributes: attrs
+        )
+        downloadText.draw(
+            with: NSRect(x: 0, y: 1, width: width, height: 10),
+            options: [.usesLineFragmentOrigin, .usesFontLeading],
+            attributes: attrs
+        )
     }
 
     func setSpeed(upload: String, download: String) {
-        if uploadLabel.stringValue != upload {
-            uploadLabel.stringValue = upload
+        var needsRedraw = false
+        if uploadText != upload {
+            uploadText = upload
+            needsRedraw = true
         }
-        if downloadLabel.stringValue != download {
-            downloadLabel.stringValue = download
+        if downloadText != download {
+            downloadText = download
+            needsRedraw = true
+        }
+        if needsRedraw {
+            needsDisplay = true
         }
     }
-
 }
 
 @available(macOS 26, *)
 final class NativeStatusItemPresenter: StatusItemPresenting {
+    private static let barHeight: CGFloat = 22
+    private static let speedOriginX: CGFloat = 38
+    private static let trailingInset: CGFloat = 3
+
     private let statusItem: NSStatusItem
-    private let layoutView: NativeStatusBarLayoutView
+    private let speedOverlay = NativeSpeedOverlayView(frame: .zero)
     private var proxyEnabled = false
     private var speedVisible = true
     private var up = 0
@@ -247,25 +238,33 @@ final class NativeStatusItemPresenter: StatusItemPresenting {
         self.statusItem = statusItem
         let length = statusItem.length
         currentWidth = length > 0 ? length : 72
-        layoutView = NativeStatusBarLayoutView(
-            frame: NSRect(x: 0, y: 0, width: currentWidth, height: 22)
-        )
 
         guard let button = statusItem.button else { return }
-        button.title = ""
-        button.image = nil
-        button.imagePosition = .imageOverlaps
-        button.contentTintColor = nil
 
-        layoutView.autoresizingMask = [.width, .height]
-        button.addSubview(layoutView)
-        layoutView.updateLayout(width: currentWidth)
+        let image = StatusItemTool.menuImage
+        image.isTemplate = true
+        button.image = image
+        button.imagePosition = .imageOnly
+        button.title = ""
+        button.contentTintColor = nil
+        if let cell = button.cell {
+            StatusItemNativeIconLayout.activate(on: cell)
+            if let buttonCell = cell as? NSButtonCell {
+                buttonCell.imageScaling = .scaleProportionallyDown
+            }
+        }
+
+        speedOverlay.wantsLayer = false
+        button.addSubview(speedOverlay)
+        updateSpeedOverlayFrame()
     }
 
     func applyProxyEnabled(_ enabled: Bool) {
         guard proxyEnabled != enabled else { return }
         proxyEnabled = enabled
-        layoutView.applyProxyEnabled(enabled)
+        guard let button = statusItem.button else { return }
+        button.appearsDisabled = !enabled
+        button.alphaValue = 1
     }
 
     func applySpeed(up: Int, down: Int) {
@@ -273,7 +272,7 @@ final class NativeStatusItemPresenter: StatusItemPresenting {
         guard self.up != up || self.down != down else { return }
         self.up = up
         self.down = down
-        layoutView.setSpeed(
+        speedOverlay.setSpeed(
             upload: SpeedUtils.getSpeedString(for: up),
             download: SpeedUtils.getSpeedString(for: down)
         )
@@ -282,7 +281,7 @@ final class NativeStatusItemPresenter: StatusItemPresenting {
     func applySpeedVisible(_ visible: Bool) {
         guard speedVisible != visible else { return }
         speedVisible = visible
-        layoutView.applySpeedVisible(visible)
+        speedOverlay.isHidden = !visible
         if !visible {
             up = 0
             down = 0
@@ -293,7 +292,7 @@ final class NativeStatusItemPresenter: StatusItemPresenting {
         guard currentWidth != width else { return }
         currentWidth = width
         statusItem.length = width
-        layoutView.updateLayout(width: width)
+        updateSpeedOverlayFrame()
     }
 
     func applyLayout(showSpeed: Bool, width: CGFloat) {
@@ -304,8 +303,18 @@ final class NativeStatusItemPresenter: StatusItemPresenting {
         speedVisible = showSpeed
         currentWidth = width
         statusItem.length = width
-        layoutView.applySpeedVisible(showSpeed)
-        layoutView.updateLayout(width: width)
-        layoutView.applyProxyEnabled(proxyEnabled)
+        speedOverlay.isHidden = !showSpeed
+        updateSpeedOverlayFrame()
+        applyProxyEnabled(proxyEnabled)
+    }
+
+    private func updateSpeedOverlayFrame() {
+        let speedWidth = max(0, currentWidth - Self.speedOriginX - Self.trailingInset)
+        speedOverlay.frame = NSRect(
+            x: Self.speedOriginX,
+            y: 0,
+            width: speedWidth,
+            height: Self.barHeight
+        )
     }
 }

@@ -88,7 +88,6 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         // setup menu item first
         statusItem = NSStatusBar.system.statusItem(withLength: statusItemLengthWithSpeed)
         statusItemPresenter = StatusItemPresenterFactory.make(statusItem: statusItem)
-        statusItemPresenter.applyWidth(statusItemLengthWithSpeed)
         statusMenu.delegate = self
         setupStatusMenuItemData()
         DispatchQueue.main.async {
@@ -188,15 +187,19 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     func setupStatusMenuItemData() {
+        let applySpeedIndicator: (Bool?) -> Void = { [weak self] show in
+            guard let self = self else { return }
+            let enabled = show ?? true
+            self.showNetSpeedIndicatorMenuItem.state = enabled ? .on : .off
+            let width: CGFloat = enabled ? statusItemLengthWithSpeed : 25
+            self.statusItemPresenter.applyLayout(showSpeed: enabled, width: width)
+        }
+        applySpeedIndicator(ConfigManager.shared.showNetSpeedIndicator)
+
         ConfigManager.shared
             .showNetSpeedIndicatorObservable
-            .bind { [weak self] show in
-                guard let self = self else { return }
-                self.showNetSpeedIndicatorMenuItem.state = (show ?? true) ? .on : .off
-                let statusItemLength: CGFloat = (show ?? true) ? statusItemLengthWithSpeed : 25
-                self.statusItemPresenter.applyWidth(statusItemLength)
-                self.statusItemPresenter.applySpeedVisible(show ?? true)
-            }.disposed(by: disposeBag)
+            .bind(onNext: applySpeedIndicator)
+            .disposed(by: disposeBag)
 
         statusItemPresenter.applyProxyEnabled(ConfigManager.shared.proxyPortAutoSet)
 

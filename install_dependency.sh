@@ -16,7 +16,7 @@ FORCE_DASHBOARD=0
 usage() {
     echo "Usage: $0 [options]"
     echo ""
-    echo "  (default)           Install missing deps; git pull existing dashboards"
+    echo "  (default)           Install missing deps; sync existing dashboards to gh-pages"
     echo "  --force             Force update all (core + geo + dashboards)"
     echo "  --force-core        Force re-download and package mihomo core"
     echo "  --force-geo         Force re-download geo rule databases"
@@ -216,8 +216,10 @@ sync_dashboard() {
     fi
 
     if [ -d "$dest/.git" ]; then
-        echo "Updating dashboard/${name} (git pull) ..."
-        git -C "$dest" pull --ff-only origin gh-pages
+        echo "Updating dashboard/${name} (sync to origin/gh-pages) ..."
+        # Shallow clones often diverge from remote; reset matches published static assets.
+        git -C "$dest" fetch --depth 1 origin gh-pages
+        git -C "$dest" reset --hard FETCH_HEAD
         cleanup_dashboard_content "$name" "$dest"
         echo "dashboard/${name} updated."
         return

@@ -39,6 +39,18 @@ You can download from [Release](https://github.com/MetaCubeX/Clash.Meta/releases
   bash install_dependency.sh
   ```
 
+  By default, missing dependencies are installed; existing dashboard repos are updated with `git pull`. Core and geo are skipped when already present.
+
+  Force refresh when needed:
+  ```
+  bash install_dependency.sh --force              # all
+  bash install_dependency.sh --force-core         # mihomo core only
+  bash install_dependency.sh --force-geo          # geo rule databases only
+  bash install_dependency.sh --force-dashboard    # re-clone dashboards (default: git pull)
+  ```
+
+  Run `bash install_dependency.sh --help` for details.
+
 - Build and run.
 
 ## Config

@@ -1,22 +1,69 @@
 #!/bin/bash
 set -e
 
-if [ ! -d "clash.meta" ]; then
-    echo "Downloading mihomo..."
-    mkdir clash.meta
-    # arm64
-    curl -s https://api.github.com/repos/MetaCubeX/mihomo/releases/latest \
-     | grep "browser_download_url.*mihomo-darwin-arm64-v.*gz" \
-     | cut -d '"' -f 4 \
-     | xargs curl -L -o clash.meta/mihomo-darwin-arm64.gz
+FORCE_CORE=0
 
-     # amd64
-    curl -s https://api.github.com/repos/MetaCubeX/mihomo/releases/latest \
-     | grep "browser_download_url.*mihomo-darwin-amd64-v.*gz" \
-     | cut -d '"' -f 4 \
-     | xargs curl -L -o clash.meta/mihomo-darwin-amd64.gz
+usage() {
+    echo "Usage: $0 [--force]"
+    echo ""
+    echo "  (default)  Download mihomo only when clash.meta/ does not exist"
+    echo "  --force    Remove clash.meta/ and download latest mihomo release"
+}
 
+for arg in "$@"; do
+    case "$arg" in
+        --force)
+            FORCE_CORE=1
+            ;;
+        -h|--help)
+            usage
+            exit 0
+            ;;
+        *)
+            echo "Unknown option: $arg" >&2
+            usage >&2
+            exit 1
+            ;;
+    esac
+done
+
+# Match standard darwin builds only (e.g. mihomo-darwin-amd64-v1.19.26.gz), not go120/go122 variants.
+MIHOMO_ARM64_PATTERN='mihomo-darwin-arm64-v[0-9]+\.[0-9]+\.[0-9]+\.gz'
+MIHOMO_AMD64_PATTERN='mihomo-darwin-amd64-v[0-9]+\.[0-9]+\.[0-9]+\.gz'
+
+download_mihomo_asset() {
+    local pattern="$1"
+    local output_path="$2"
+    local url
+    url=$(curl -s https://api.github.com/repos/MetaCubeX/mihomo/releases/latest \
+        | grep -E "browser_download_url.*${pattern}" \
+        | head -1 \
+        | cut -d '"' -f 4)
+    if [ -z "$url" ]; then
+        echo "Error: no release asset matching ${pattern}" >&2
+        exit 1
+    fi
+    echo "Downloading $(basename "$url") ..."
+    curl -fsSL -o "$output_path" "$url"
+}
+
+download_mihomo() {
+    echo "Downloading latest mihomo..."
+    mkdir -p clash.meta
+    download_mihomo_asset "$MIHOMO_ARM64_PATTERN" "clash.meta/mihomo-darwin-arm64.gz"
+    download_mihomo_asset "$MIHOMO_AMD64_PATTERN" "clash.meta/mihomo-darwin-amd64.gz"
     echo "Download complete."
+}
+
+if [ "$FORCE_CORE" -eq 1 ]; then
+    echo "Force mode: removing existing clash.meta..."
+    rm -rf clash.meta
+fi
+
+if [ ! -d "clash.meta" ]; then
+    download_mihomo
+else
+    echo "Using existing clash.meta (pass --force to re-download latest mihomo)"
 fi
 
 echo "Unzip core files"
